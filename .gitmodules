@@ -89,3 +89,6 @@
 [submodule "vendor/lpeg"]
 	path = vendor/lpeg
 	url = https://github.com/roberto-ieru/LPeg.git
+[submodule "ficl"]
+	path = vendor/ficl
+	url = https://github.com/jwsadler58/ficl.git
