@@ -1,0 +1,94 @@
+-- title:   FICL Demo
+-- author:  toastal
+-- desc:    Basic FICL demonstration for TIC-80
+-- script:  ficl
+-- input:   gamepad
+
+\ === GAME STATE ===
+0 value t        \ time/frame counter
+96 value x       \ player X position
+24 value y       \ player Y position
+0 value vx       \ velocity X
+0 value vy       \ velocity Y
+
+\ === INITIALIZATION ===
+: BOOT
+  0 to t
+  96 to x
+  24 to y
+  0 to vx
+  0 to vy
+;
+
+\ === UPDATE GAME STATE ===
+: update
+  \ Input handling
+  0 btn if vy 1 - to vy then    \ up - accelerate up
+  1 btn if vy 1 + to vy then    \ down - accelerate down
+  2 btn if vx 1 - to vx then    \ left - accelerate left
+  3 btn if vx 1 + to vx then    \ right - accelerate right
+
+  \ Apply velocity with damping
+  x vx + to x
+  y vy + to y
+
+  \ Screen boundaries
+  x 0 < if 0 to x then
+  x 232 > if 232 to x then
+  y 0 < if 0 to y then
+  y 128 > if 128 to y then
+
+  \ Friction
+  vx 0 > if vx 1 - to vx then
+  vx 0 < if vx 1 + to vx then
+  vy 0 > if vy 1 - to vy then
+  vy 0 < if vy 1 + to vy then
+
+  \ Increment timer
+  t 1 + to t
+;
+
+\ === RENDER FRAME ===
+: render
+  \ Clear screen with color 13 (purple-ish)
+  13 cls
+
+  \ Draw animated sprite
+  \ Calculate sprite frame: (t / 30 % 2) * 2 + 1
+  t 30 / 2 % 2 * 1 +    \ sprite ID
+  x                     \ x position
+  y                     \ y position
+  14                    \ palette
+  3                     \ scale
+  0                     \ flip
+  0                     \ rotate
+  1                     \ width
+  1                     \ height
+  spr
+
+  \ Draw some rectangles
+  200 10 10 5 2 rect    \ x y w h color
+  200 30 20 10 3 rectb  \ x y w h color (border only)
+
+  \ Draw a circle
+  220 100 15 12 circ    \ x y radius color
+
+  \ Draw a line
+  0 0 x y 11 line       \ x0 y0 x1 y1 color
+;
+
+\ === MAIN GAME LOOP ===
+: TIC
+  update
+  render
+;
+
+\ === Boot message (printed once) ===
+: init-message
+  \ Display brief info
+  \ Note: print requires string handling which needs more work
+  \ For now, we rely on visual demonstration
+;
+
+\ Call boot on startup
+BOOT
